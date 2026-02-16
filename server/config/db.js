@@ -3,9 +3,21 @@ import {env} from './env.js'
 
 
 export const connectDB = async () => {
-    return mongoose.connect(env.MONGO_URL)
+    try {
+        await mongoose.connect(env.mongoUrl)
+        console.log("Mongo connected")
+    } catch (error) {
+        console.error("MongoDB connection failed:", error)
+        process.exit(1)
+    }
 }
 
+
 export const disconnectDB = async () => {
-    return mongoose.disconnect().then(() => console.log("disconnected!"))
+    try {
+        await mongoose.disconnect()
+        console.log("MongoDB disconnected")
+    } catch (error) {
+        console.error("MongoDB disconnection error:", error.message)
+    }
 }

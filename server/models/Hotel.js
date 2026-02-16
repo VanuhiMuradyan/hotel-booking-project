@@ -7,7 +7,6 @@ const hotelSchema = new Schema({
     address: {type: String, required: [true, "Address is required"]},
     city: {type: String, required: [true, "City is required"]},
     country: {type: String, required: [true, "Country is required"]},
-    raiting: {type: Number, default: 0},
     price: {type: Number, required: [true, "Prices required"]},
     images: {type: [String], required: []},
     availableRooms: {type: Number, required: [true, "Available rooms count is required"]},

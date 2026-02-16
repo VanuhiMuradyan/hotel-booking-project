@@ -1,17 +1,15 @@
 import Hotel from "../models/Hotel.js"
-import { ObjectId } from "mongodb"
 
 class HotelController {
 
     async addHotel(req, res) {
-        const hotel = req.body
         try {
+            const hotel = req.body
             const newHotel = await Hotel.create(hotel)
             res.status(201).send({message: "Hotel created successfully", payload: newHotel})
 
         } catch (err) {
             return res.send({message: err.message})
-
         }
     }
 
@@ -26,9 +24,10 @@ class HotelController {
     }
 
     async getHotel(req, res) {
-        const hotelId = req.params
-        try {
-            const hotel = await Hotel.findById(new ObjectId(hotelId)).populate("owner", "name surname email")
+        try {            
+            const {id} = req.params
+
+            const hotel = await Hotel.findById(id).populate("owner", "name surname email")
             if (!hotel) {
                 return res.status(401).send("Hotel not found")
             }
@@ -40,8 +39,9 @@ class HotelController {
     }
 
     async getAdminHotels(req, res) {
-        const adminId = req.user._id
         try {
+            const adminId = req.user._id
+
             const hotels = await Hotel.find({owner: adminId})
 
             res.status(200).send({ok: true, payload: hotels})
@@ -51,21 +51,26 @@ class HotelController {
     }
 
     async updateHotel(req, res) {
-        const hotelId = req.params.id
-        const adminId = req.user._id
-        const updateData = req.body
-
         try {
+            const hotelId = req.params.id
+            const adminId = req.user._id
+            const updateData = req.body
+            const files = req.files
+                    
             const hotel = await Hotel.findOne({_id: hotelId, owner: adminId})
             
             if (!hotel) {
                 return res.status(401).send({message: "Hotel not found or access denied"})
             }
 
+            if (files && files.length > 0) {
+                const images = files.map(file => file.filename)                   
+                updateData.images = [...(hotel.images || []), ...images]
+            }
+
             const updatedHotel = await Hotel.findByIdAndUpdate(hotelId, updateData, {new: true}).populate("owner", "name surname email")
 
             res.status(200).send({message: "Hotel updated successfully", payload: updatedHotel})
-
 
         } catch (err) {
             return res.send({message: err.message})
@@ -74,14 +79,16 @@ class HotelController {
     }
 
     async deleteHotel(req, res) {
-        const hotelId = req.params.id
-        const adminId = req.user._id
         try{
+            const hotelId = req.params.id
+            const adminId = req.user._id
+
             const {deletedCount} = await Hotel.deleteOne({_id: hotelId, owner: adminId})
             
             if(!deletedCount) {
                 return res.status(401).send({message: "Hotel not found or access denied"})
             }
+            
 
             res.status(200).send({message: "Hotel deleted successfully"})
 
@@ -95,8 +102,10 @@ class HotelController {
             const adminId = req.user._id
             const hotelId = req.params.id
             const files = req.files
-            console.log(files);
             
+            if (!files || files.length === 0) {
+                return res.status(400).json({ message: "No images uploaded" })
+            }
 
             const hotel = await Hotel.findOne({_id: hotelId, owner: adminId})
             if (!hotel) {
@@ -115,8 +124,6 @@ class HotelController {
             return res.status(500).send({message: err.message})
         }
     }
-
-    
 }
 
 export default new HotelController()

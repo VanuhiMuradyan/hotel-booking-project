@@ -11,7 +11,7 @@ export const isAuthenticated = async (req, res, next) => {
 
         const token = authHeader.split(" ")[1]
 
-        const verifiedToken = jwt.verify(token, env.SECRET)
+        const verifiedToken = jwt.verify(token, env.jwtSecret)
         const user = await User.findById(verifiedToken.id).select("-password -__v")
 
         if(!user) {
