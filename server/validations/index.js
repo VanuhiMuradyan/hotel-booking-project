@@ -1,5 +1,6 @@
 export {
     signupSchema,
+    adminSignupSchema,
     loginSchema,
     updatePasswordSchema,
     updateEmailSchema,
@@ -15,7 +16,8 @@ export {
     createBookingSchema,
     updateBookingSchema,
     cancelBookingSchema,
-    bookingIdParamSchema
+    bookingIdParamSchema,
+    updateBookingStatusSchema
 } from './bookingSchema.js'
 
 export {

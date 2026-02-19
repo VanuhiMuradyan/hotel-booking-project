@@ -11,6 +11,16 @@ export const signupSchema = z.object({
     dateOfBirth: z.string().optional()
 })
 
+export const adminSignupSchema = z.object({
+    name: nameSchema,
+    surname: nameSchema,
+    email: emailSchema,
+    password: passwordSchema,
+    phone: phoneSchema,
+    country: z.string().min(2).optional(),
+    dateOfBirth: z.string().optional()
+})
+
 export const loginSchema = z.object({
     email: emailSchema,
     password: z.string().min(1, "Password is required")

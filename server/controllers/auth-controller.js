@@ -7,7 +7,7 @@ class AuthController {
 
     async signup(req, res) {
         try {
-            const { name, surname, email, password, dateOfBirth, phone, country, avatar, role } = req.body
+            const { name, surname, email, password, dateOfBirth, phone, country, avatar} = req.body
 
             const existingUser = await User.findOne({ email })
             if (existingUser) {
@@ -25,7 +25,7 @@ class AuthController {
                 phone,
                 country,
                 avatar,
-                role
+                role: "user"
             })
 
             const safeUser = {
@@ -40,6 +40,49 @@ class AuthController {
 
             res.status(201).send({
                 message: "User created successfully",
+                payload: safeUser
+            })
+
+        } catch (err) {
+            return res.status(500).send({ message: err.message })
+        }
+    }
+
+     async adminSignup(req, res) {
+        try {
+            const { name, surname, email, password, dateOfBirth, phone, country, avatar } = req.body
+
+            const existingUser = await User.findOne({ email })
+            if (existingUser) {
+                return res.status(409).send({ message: "Email already registered" })
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 12)
+
+            const user = await User.create({
+                name,
+                surname,
+                email,
+                password: hashedPassword,
+                dateOfBirth,
+                phone,
+                country,
+                avatar,
+                role: "admin" 
+            })
+
+            const safeUser = {
+                _id: user._id,
+                name: user.name,
+                surname: user.surname,
+                email: user.email,
+                country: user.country,
+                role: user.role,
+                avatar: user.avatar
+            }
+
+            res.status(201).send({
+                message: "Admin created successfully",
                 payload: safeUser
             })
 

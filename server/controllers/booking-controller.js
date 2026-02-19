@@ -51,7 +51,7 @@ class BookingController {
                     payload: bookedHotel
             })
         } catch (error) {
-            res.status(500).json({ message: error.message })
+            res.status(500).send({ message: error.message })
         }
     } 
 
@@ -66,9 +66,9 @@ class BookingController {
                 return res.status(400).send({message: "Not booking hotel"})
             }
             
-            return res.status(201).send({ok: true, payload: bookings})
+            return res.status(200).send({ok: true, payload: bookings})
         } catch (error) {
-            res.status(500).json({ message: error.message })
+            res.status(500).send({ message: error.message })
         }
     }
 
@@ -127,10 +127,156 @@ class BookingController {
                 $inc: { availableRooms: booking.roomsCount }
             })
 
-            res.status(200).json({ message: "Booking cancelled successfully" })
+            res.status(200).send({ message: "Booking cancelled successfully" })
 
         } catch (err) {
-            res.status(500).json({ message: err.message })
+            res.status(500).send({ message: err.message })
+        }
+    }
+
+     async getAllBookings(req, res) {
+        try {
+            const { status, hotelId, startDate, endDate } = req.query
+
+            let filter = {}
+
+            if (status) {
+                filter.status = status
+            }
+
+            if (hotelId) {
+                filter.hotelId = hotelId
+            }
+
+            if (startDate || endDate) {
+                filter.checkInDate = {}
+                if (startDate) filter.checkInDate.$gte = new Date(startDate)
+                if (endDate) filter.checkInDate.$lte = new Date(endDate)
+            }
+
+            const bookings = await Booking.find(filter)
+                .populate('hotelId', 'name city country')
+                .populate('userId', 'name surname email phone')
+                .sort({ createdAt: -1 })
+
+            res.status(200).send({ 
+                ok: true,
+                count: bookings.length,
+                payload: bookings 
+            })
+
+        } catch (err) {
+            res.status(500).send({ message: err.message })
+        }
+    }
+
+    async updateBookingStatus(req, res) {
+        try {
+            const { id } = req.params
+            const { status } = req.body
+
+            const foundBooking = await Booking.findById(id)
+
+            if (!foundBooking) {
+                return res.status(404).json({ message: "Booking not found" })
+            }
+
+            const bookedRooms = foundBooking.roomsCount || 1
+
+            if (foundBooking.status !== 'cancelled' && status === 'cancelled') {
+                await Hotel.findByIdAndUpdate(foundBooking.hotelId, {
+                    $inc: { availableRooms: bookedRooms }
+                })
+            }
+
+            if (foundBooking.status === 'cancelled' && status !== 'cancelled') {
+                const targetHotel = await Hotel.findById(foundBooking.hotelId)
+                
+                if (targetHotel.availableRooms < bookedRooms) {
+                    return res.status(400).send({ 
+                        message: `Not enough rooms available. Only ${targetHotel.availableRooms} rooms left.` 
+                    })
+                }
+                
+                await Hotel.findByIdAndUpdate(foundBooking.hotelId, {
+                    $inc: { availableRooms: -bookedRooms }
+                })
+            }
+
+            foundBooking.status = status
+            await foundBooking.save()
+
+            const updatedBooking = await Booking.findById(id)
+                .populate('hotelId', 'name city country')
+                .populate('userId', 'name surname email')
+
+            res.status(200).send({
+                message: "Booking status updated successfully",
+                payload: updatedBooking
+            })
+
+        } catch (err) {
+            res.status(500).send({ message: err.message })
+        }
+    }
+
+    async deleteBooking(req, res) {
+        try {
+            const { id } = req.params
+
+            const bookingToDelete = await Booking.findById(id)
+
+            if (!bookingToDelete) {
+                return res.status(404).json({ message: "Booking not found" })
+            }
+
+            const roomsToRestore = bookingToDelete.roomsCount || 1
+
+            if (bookingToDelete.status !== 'cancelled') {
+                await Hotel.findByIdAndUpdate(bookingToDelete.hotelId, {
+                    $inc: { availableRooms: roomsToRestore }
+                })
+            }
+
+            await Booking.findByIdAndDelete(id)
+
+            res.status(200).send({ 
+                message: "Booking deleted successfully" 
+            })
+
+        } catch (err) {
+            res.status(500).send({ message: err.message })
+        }
+    }
+
+    async getBookingsByHotel(req, res) {
+        try {
+            const { hotelId } = req.params
+
+            const hotel = await Hotel.findOne({ 
+                _id: hotelId, 
+                owner: req.user._id 
+            })
+
+            if (!hotel) {
+                return res.status(404).json({ 
+                    message: "Hotel not found or access denied" 
+                })
+            }
+
+            const bookings = await Booking.find({ hotelId })
+                .populate('userId', 'name surname email phone')
+                .sort({ checkInDate: 1 })
+
+            res.status(200).send({ 
+                ok: true,
+                hotelName: hotel.name,
+                count: bookings.length,
+                payload: bookings 
+            })
+
+        } catch (err) {
+            res.status(500).send({ message: err.message })
         }
     }
 

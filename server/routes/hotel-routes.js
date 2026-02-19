@@ -16,9 +16,9 @@ hotelRouter.get("/:id", hotelController.getHotel)
 
 
 hotelRouter.use(isAdmin)
-hotelRouter.post("/add", validate(createHotelSchema), hotelController.addHotel)
-hotelRouter.patch("/update/:id", upload.array("hotelImage", 10), hotelController.updateHotel)
-hotelRouter.delete("/delete/:id", hotelController.deleteHotel)
-hotelRouter.post("/upload/images/:id", upload.array("hotelImage", 10), hotelController.uploadImages)
+hotelRouter.post("/admin/add", validate(createHotelSchema), hotelController.addHotel)
+hotelRouter.patch("/admin/update/:id", upload.array("hotelImage", 10), hotelController.updateHotel)
+hotelRouter.delete("/admin/delete/:id", hotelController.deleteHotel)
+hotelRouter.post("/admin/upload/images/:id", upload.array("hotelImage", 10), hotelController.uploadImages)
 
 export default hotelRouter

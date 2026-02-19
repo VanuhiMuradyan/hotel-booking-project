@@ -36,21 +36,43 @@ class RatingController {
                 .populate('userId', 'name surname')
                 .populate('hotelId', 'name')
 
-            res.status(201).json({ 
+            res.status(201).send({ 
                 ok: true, 
                 payload: populatedRating 
             })
         } catch (err) {
-            return res.status(500).json({ message: err.message })
+            return res.status(500).send({ message: err.message })
         }
     }
 
     async updateComment(req, res) {
-        // To be implemented
-        //////////////////////////////////
-        //////////////////////////////////
-        //////////////////////////////////////
-        res.status(501).json({ message: "Not implemented yet" })
+        try {
+            const { id } = req.params        
+            const { commentId } = req.body   
+            const { content } = req.body
+            const userId = req.user._id
+
+            const rating = await Rating.findOne({ _id: id, userId })
+            if (!rating) {
+                return res.status(404).json({ message: "Rating not found or access denied" })
+            }
+
+            const comment = rating.comments.id(commentId)
+            if (!comment) {
+                return res.status(404).json({ message: "Comment not found" })
+            }
+
+            comment.content = content
+            await rating.save()
+
+            res.status(200).json({ 
+                message: "Comment updated successfully",
+                payload: rating 
+            })
+
+        } catch (err) {
+            return res.status(500).json({ message: err.message })
+        }
     }
 
     async getRatingsByHotel(req, res) {
@@ -61,12 +83,12 @@ class RatingController {
                 .populate('userId', 'name surname avatar')
                 .sort({ createdAt: -1 })
 
-            res.status(200).json({ 
+            res.status(200).send({ 
                 ok: true, 
                 payload: ratings 
             })
         } catch (err) {
-            return res.status(500).json({ message: err.message })
+            return res.status(500).send({ message: err.message })
         }
     }
 
@@ -81,15 +103,15 @@ class RatingController {
             })
 
             if (!deletedCount) {
-                return res.status(404).json({ 
+                return res.status(404).send({ 
                     message: "Rating not found or access denied" 
                 })
             }
 
-            res.status(200).json({ message: "Rating deleted successfully" })
+            res.status(200).send({ message: "Rating deleted successfully" })
 
         } catch (err) {
-            return res.status(500).json({ message: err.message })
+            return res.status(500).send({ message: err.message })
         }
     }
 }

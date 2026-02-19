@@ -9,7 +9,7 @@ class HotelController {
             res.status(201).send({message: "Hotel created successfully", payload: newHotel})
 
         } catch (err) {
-            return res.send({message: err.message})
+            return res.status(500).send({message: err.message})
         }
     }
 
@@ -19,7 +19,7 @@ class HotelController {
             res.status(200).send({ok: true, payload: hotels})
 
         } catch (err) {
-            return res.send({message: err.message})
+            return res.status(500).send({message: err.message})
         }
     }
 
@@ -34,7 +34,7 @@ class HotelController {
             res.status(200).send({ok: true, payload: hotel})
 
         } catch (err) {
-            return res.send({message: err.message})
+            return res.status(500).send({message: err.message})
         }
     }
 
@@ -46,7 +46,7 @@ class HotelController {
 
             res.status(200).send({ok: true, payload: hotels})
         } catch (err) {
-            return res.send({message: err.message})
+            return res.status(500).send({message: err.message})
         }
     }
 
@@ -73,7 +73,7 @@ class HotelController {
             res.status(200).send({message: "Hotel updated successfully", payload: updatedHotel})
 
         } catch (err) {
-            return res.send({message: err.message})
+            return res.status(500).send({message: err.message})
         }
 
     }
@@ -93,7 +93,7 @@ class HotelController {
             res.status(200).send({message: "Hotel deleted successfully"})
 
         } catch (err) {
-            return res.send({message: err.message})
+            return res.status(500).send({message: err.message})
         }
     }
 

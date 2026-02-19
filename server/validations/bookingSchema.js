@@ -52,3 +52,10 @@ export const cancelBookingSchema = z.object({
 export const bookingIdParamSchema = z.object({
     id: objectIdSchema
 })
+
+
+export const updateBookingStatusSchema = z.object({
+  status: z.enum(["pending", "confirmed", "cancelled", "completed"], {
+    errorMap: () => ({ message: "Status must be pending, confirmed or cancelled" }),
+  }),
+});
