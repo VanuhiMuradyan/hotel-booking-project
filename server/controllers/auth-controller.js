@@ -187,7 +187,7 @@ class AuthController {
 
     async updateProfile(req, res) {
         try {
-            const { name, surname, dateOfBirth, phone, country, avatar } = req.body
+            const { name, surname, dateOfBirth, phone, country, city, avatar } = req.body
             const userId = req.user._id
 
             const updateData = {}
@@ -197,7 +197,8 @@ class AuthController {
             if (dateOfBirth) updateData.dateOfBirth = dateOfBirth
             if (phone) updateData.phone = phone
             if (country) updateData.country = country
-            if (avatar) updateData.avatar = avatar
+            if (city) updateData.city = city
+            if (avatar) updateData.avatar = avatar            
 
             const updatedUser = await User.findByIdAndUpdate(
                 userId,

@@ -5,7 +5,7 @@ class HotelController {
     async addHotel(req, res) {
         try {
             const hotel = req.body
-            const newHotel = await Hotel.create(hotel)
+            const newHotel = await Hotel.create({...hotel, owner: req.user._id })
             res.status(201).send({message: "Hotel created successfully", payload: newHotel})
 
         } catch (err) {
@@ -112,7 +112,7 @@ class HotelController {
                 return res.status(401).send({message: "Hotel not found or access denied"})
             }
 
-            const imageUrls = files.map(file => `/uploads/hotels/${file.filename}`)
+            const imageUrls = files.map(file => `/uploads/${file.filename}`)
             
 
             hotel.images.push(...imageUrls)

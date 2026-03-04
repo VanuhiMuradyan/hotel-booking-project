@@ -15,10 +15,7 @@ export const adminSignupSchema = z.object({
     name: nameSchema,
     surname: nameSchema,
     email: emailSchema,
-    password: passwordSchema,
-    phone: phoneSchema,
-    country: z.string().min(2).optional(),
-    dateOfBirth: z.string().optional()
+    password: passwordSchema
 })
 
 export const loginSchema = z.object({
@@ -43,6 +40,7 @@ export const updateProfileSchema = z.object({
     surname: nameSchema.optional(),
     phone: phoneSchema,
     country: z.string().min(2).optional(),
+    city: z.string().min(2).optional(),
     dateOfBirth: z.string().optional(),
     avatar: z.string().url().optional()
 })

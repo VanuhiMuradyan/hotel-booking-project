@@ -8,6 +8,7 @@ const userSchema = new Schema({
   dateOfBirth: { type: String },
   phone: { type: String },
   country: { type: String, required: false},
+  city: {type: String, required: false},
   role: { type: String, enum: ["user", "admin"], default: "user" },
   avatar: { type: String, default: "" }
   

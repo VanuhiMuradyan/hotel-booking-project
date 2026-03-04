@@ -10,6 +10,7 @@ const authRouter = express.Router()
 
 authRouter.post("/signup", validate(signupSchema), authController.signup)
 authRouter.post("/login", validate(loginSchema), authController.login)
+authRouter.post("/admin/signup", validate(adminSignupSchema), authController.adminSignup)
 
 authRouter.use(isAuthenticated)
 
@@ -18,7 +19,6 @@ authRouter.patch("/update/password", validate(updatePasswordSchema), authControl
 authRouter.patch("/update/email", validate(updateEmailSchema), authController.updateEmail)
 authRouter.patch("/update/profile", validate(updateProfileSchema), authController.updateProfile)
 
-authRouter.post("/admin/signup", isAdmin, validate(adminSignupSchema), authController.adminSignup)
 
 
 export default authRouter

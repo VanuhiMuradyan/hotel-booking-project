@@ -8,10 +8,11 @@ import { createHotelSchema } from "../validations/hotelSchema.js"
 
 const hotelRouter = express.Router()
 
-hotelRouter.use(isAuthenticated)
 hotelRouter.get("/", hotelController.getAllHotels)
-hotelRouter.get("/admin/my-hotels", isAdmin, hotelController.getAdminHotels) 
 hotelRouter.get("/:id", hotelController.getHotel)
+
+hotelRouter.use(isAuthenticated)
+hotelRouter.get("/admin/my-hotels", isAdmin, hotelController.getAdminHotels) 
 
 
 

@@ -280,6 +280,27 @@ class BookingController {
         }
     }
 
+    async getAdminBookings(req, res) {
+        try {
+            const adminId = req.user._id
+            
+            const hotels = await Hotel.find({ owner: adminId })
+            const hotelIds = hotels.map(h => h._id)
+            
+            const bookings = await Booking.find({ hotelId: { $in: hotelIds } })
+                .populate('userId', 'name surname email phone')
+                .populate('hotelId', 'name')
+                .sort({ checkInDate: -1 })
+
+            res.status(200).send({ 
+                message: "ok",
+                payload: bookings 
+            })
+        } catch (err) {
+            res.status(500).send({ message: err.message })
+        }
+    }
+
 }
 
 export default new BookingController()
