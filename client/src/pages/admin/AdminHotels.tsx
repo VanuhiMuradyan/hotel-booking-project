@@ -11,7 +11,6 @@ export default function AdminHotels({ hotels, setHotels }: Props) {
     
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this hotel?")) return
     try {
       await api.delete(`/hotels/admin/delete/${id}`)
       setHotels(hotels.filter(h => h._id !== id))
@@ -64,11 +63,15 @@ export default function AdminHotels({ hotels, setHotels }: Props) {
                 </div>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleDelete(hotel._id)}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleDelete(hotel._id)
+                    }}
                     className="text-xs tracking-widest uppercase text-red-400 border border-red-100 px-5 py-6 rounded-lg hover:bg-red-50 transition cursor-pointer"
                   >
                     Delete
-                  </button>
+                </button>
                 </div>
               </div>
             </div>

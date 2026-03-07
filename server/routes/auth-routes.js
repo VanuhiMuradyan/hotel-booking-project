@@ -11,6 +11,7 @@ const authRouter = express.Router()
 authRouter.post("/signup", validate(signupSchema), authController.signup)
 authRouter.post("/login", validate(loginSchema), authController.login)
 authRouter.post("/admin/signup", validate(adminSignupSchema), authController.adminSignup)
+authRouter.get("/profile/:id", authController.getPublicProfile)
 
 authRouter.use(isAuthenticated)
 

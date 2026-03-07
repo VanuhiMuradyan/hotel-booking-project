@@ -7,7 +7,7 @@ class AuthController {
 
     async signup(req, res) {
         try {
-            const { name, surname, email, password, dateOfBirth, phone, country, avatar} = req.body
+            const { name, surname, email, password, dateOfBirth, phone, country} = req.body
 
             const existingUser = await User.findOne({ email })
             if (existingUser) {
@@ -24,7 +24,6 @@ class AuthController {
                 dateOfBirth,
                 phone,
                 country,
-                avatar,
                 role: "user"
             })
 
@@ -35,7 +34,7 @@ class AuthController {
                 email: user.email,
                 country: user.country,
                 role: user.role,
-                avatar: user.avatar
+                phone: user.phone
             }
 
             res.status(201).send({
@@ -50,7 +49,7 @@ class AuthController {
 
      async adminSignup(req, res) {
         try {
-            const { name, surname, email, password, dateOfBirth, phone, country, avatar } = req.body
+            const { name, surname, email, password, dateOfBirth, phone, country } = req.body
 
             const existingUser = await User.findOne({ email })
             if (existingUser) {
@@ -67,7 +66,6 @@ class AuthController {
                 dateOfBirth,
                 phone,
                 country,
-                avatar,
                 role: "admin" 
             })
 
@@ -78,7 +76,7 @@ class AuthController {
                 email: user.email,
                 country: user.country,
                 role: user.role,
-                avatar: user.avatar
+                dateOfBirth: user.dateOfBirth
             }
 
             res.status(201).send({
@@ -187,7 +185,7 @@ class AuthController {
 
     async updateProfile(req, res) {
         try {
-            const { name, surname, dateOfBirth, phone, country, city, avatar } = req.body
+            const { name, surname, dateOfBirth, phone, country, city } = req.body
             const userId = req.user._id
 
             const updateData = {}
@@ -198,7 +196,6 @@ class AuthController {
             if (phone) updateData.phone = phone
             if (country) updateData.country = country
             if (city) updateData.city = city
-            if (avatar) updateData.avatar = avatar            
 
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
@@ -210,6 +207,21 @@ class AuthController {
                 message: "Profile updated successfully",
                 payload: updatedUser
             })
+        } catch (err) {
+            return res.status(500).send({ message: err.message })
+        }
+    }
+
+    async getPublicProfile(req, res) {
+        try {
+            const { id } = req.params
+            const user = await User.findById(id).select("name surname email country phone dateOfBirth")
+            
+            if (!user) {
+                return res.status(404).send({ message: "User not found" })
+            }
+            
+            res.status(200).send({ ok: true, payload: user })
         } catch (err) {
             return res.status(500).send({ message: err.message })
         }

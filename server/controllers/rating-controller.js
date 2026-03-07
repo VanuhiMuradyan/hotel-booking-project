@@ -8,70 +8,20 @@ class RatingController {
             const userId = req.user._id
             const { rate, comment } = req.body
 
-            let rating = await Rating.findOne({ 
-                hotelId: hotelId, 
-                userId: userId 
+            // ← միշտ նոր document
+            const rating = await Rating.create({
+                hotelId,
+                userId,
+                rate,
+                comment
             })
-
-            if (!rating) {
-                rating = await Rating.create({
-                    hotelId: hotelId,
-                    userId: userId,
-                    rate,
-                    comments: comment ? [{ content: comment }] : []
-                })
-            } else {
-                if (rate) {
-                    rating.rate = rate
-                }
-
-                if (comment) {
-                    rating.comments.push({ content: comment })
-                }
-
-                await rating.save()
-            }
 
             const populatedRating = await Rating.findById(rating._id)
                 .populate('userId', 'name surname')
-                .populate('hotelId', 'name')
 
-            res.status(201).send({ 
-                ok: true, 
-                payload: populatedRating 
-            })
+            res.status(201).send({ ok: true, payload: populatedRating })
         } catch (err) {
             return res.status(500).send({ message: err.message })
-        }
-    }
-
-    async updateComment(req, res) {
-        try {
-            const { id } = req.params        
-            const { commentId } = req.body   
-            const { content } = req.body
-            const userId = req.user._id
-
-            const rating = await Rating.findOne({ _id: id, userId })
-            if (!rating) {
-                return res.status(404).json({ message: "Rating not found or access denied" })
-            }
-
-            const comment = rating.comments.id(commentId)
-            if (!comment) {
-                return res.status(404).json({ message: "Comment not found" })
-            }
-
-            comment.content = content
-            await rating.save()
-
-            res.status(200).json({ 
-                message: "Comment updated successfully",
-                payload: rating 
-            })
-
-        } catch (err) {
-            return res.status(500).json({ message: err.message })
         }
     }
 
@@ -83,33 +33,48 @@ class RatingController {
                 .populate('userId', 'name surname avatar')
                 .sort({ createdAt: -1 })
 
-            res.status(200).send({ 
-                ok: true, 
-                payload: ratings 
-            })
+            res.status(200).send({ ok: true, payload: ratings })
         } catch (err) {
             return res.status(500).send({ message: err.message })
         }
     }
 
+    async editRating(req, res) {
+        try {
+            const { id } = req.params
+            const { rate, comment } = req.body
+            const userId = req.user._id
+
+            const rating = await Rating.findOne({ _id: id, userId })
+            if (!rating) {
+                return res.status(404).json({ message: "Rating not found or access denied" })
+            }
+
+            if (rate) rating.rate = rate
+            if (comment !== undefined) rating.comment = comment
+
+            await rating.save()
+
+            const updated = await Rating.findById(id).populate('userId', 'name surname')
+
+            res.status(200).json({ ok: true, payload: updated })
+        } catch (err) {
+            return res.status(500).json({ message: err.message })
+        }
+    }
+    
     async deleteRating(req, res) {
         try {
             const ratingId = req.params.id
             const userId = req.user._id
 
-            const { deletedCount } = await Rating.deleteOne({ 
-                _id: ratingId, 
-                userId: userId 
-            })
+            const { deletedCount } = await Rating.deleteOne({ _id: ratingId, userId })
 
             if (!deletedCount) {
-                return res.status(404).send({ 
-                    message: "Rating not found or access denied" 
-                })
+                return res.status(404).send({ message: "Rating not found or access denied" })
             }
 
             res.status(200).send({ message: "Rating deleted successfully" })
-
         } catch (err) {
             return res.status(500).send({ message: err.message })
         }

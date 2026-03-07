@@ -9,9 +9,7 @@ const userSchema = new Schema({
   phone: { type: String },
   country: { type: String, required: false},
   city: {type: String, required: false},
-  role: { type: String, enum: ["user", "admin"], default: "user" },
-  avatar: { type: String, default: "" }
-  
+  role: { type: String, enum: ["user", "admin"], default: "user" },  
 })
 
 export default model("User", userSchema);

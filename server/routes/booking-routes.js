@@ -18,7 +18,6 @@ bookingRouter.use(isAdmin)
 
 bookingRouter.get("/admin/all", bookingController.getAllBookings.bind(bookingController))
 bookingRouter.get("/admin/hotel/:hotelId", bookingController.getBookingsByHotel.bind(bookingController))
-bookingRouter.patch("/admin/status/:id", validate(updateBookingStatusSchema), bookingController.updateBookingStatus.bind(bookingController))
 bookingRouter.delete("admin/delete/:id", bookingController.deleteBooking.bind(bookingController))
 bookingRouter.get("/admin/my-bookings", bookingController.getAdminBookings.bind(bookingController))
 

@@ -8,16 +8,19 @@ import { connectDB, disconnectDB } from './config/db.js'
 import cors from "cors"
 import swaggerUi from "swagger-ui-express"
 import { swaggerSpec } from "./config/swagger.js"
+import cron from "node-cron"                          
+import Booking from './models/Booking.js'
+import Hotel from './models/Hotel.js'
+import { startCronJobs } from './services/cronService.js'
+          
 
 const app = express()
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-
 app.use(cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true
 }))
-
 app.use(express.json())
 app.use(express.urlencoded())
 app.use("/uploads", express.static("public/uploads"))
@@ -28,17 +31,13 @@ app.use("/api/booking", bookingRoutes)
 app.use("/api/rating", ratingRouter)
 
 app.use((req, res) => {
-  res.status(404).json({ 
-    message: "Route not found",
-    path: req.path 
-  })
+  res.status(404).json({ message: "Route not found", path: req.path })
 })
-
 
 const startServer = async () => {
   try {
     await connectDB()
-    
+    startCronJobs()
     app.listen(env.port, () => {
       console.log(`Server running: http://localhost:${env.port}/api`)
     })
@@ -52,7 +51,6 @@ startServer()
 
 const shutdown = async (signal) => {
   console.log(`\n${signal} received. Shutting down gracefully...`)
-  
   try {
     await disconnectDB()
     console.log('Database disconnected')
@@ -63,5 +61,5 @@ const shutdown = async (signal) => {
   }
 }
 
-process.on("SIGINT", () => shutdown("SIGINT"))   
-process.on("SIGTERM", () => shutdown("SIGTERM")) 
+process.on("SIGINT", () => shutdown("SIGINT"))
+process.on("SIGTERM", () => shutdown("SIGTERM"))

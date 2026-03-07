@@ -35,7 +35,7 @@ class BookingController {
                 numberOfGuests,
                 roomsCount,
                 totalPrice: calculatedTotalPrice,
-                status: "pending"
+                status: "booked"
             })
         
             hotel.availableRooms -= roomsCount
@@ -169,57 +169,6 @@ class BookingController {
             res.status(500).send({ message: err.message })
         }
     }
-
-    async updateBookingStatus(req, res) {
-        try {
-            const { id } = req.params
-            const { status } = req.body
-
-            const foundBooking = await Booking.findById(id)
-
-            if (!foundBooking) {
-                return res.status(404).json({ message: "Booking not found" })
-            }
-
-            const bookedRooms = foundBooking.roomsCount || 1
-
-            if (foundBooking.status !== 'cancelled' && status === 'cancelled') {
-                await Hotel.findByIdAndUpdate(foundBooking.hotelId, {
-                    $inc: { availableRooms: bookedRooms }
-                })
-            }
-
-            if (foundBooking.status === 'cancelled' && status !== 'cancelled') {
-                const targetHotel = await Hotel.findById(foundBooking.hotelId)
-                
-                if (targetHotel.availableRooms < bookedRooms) {
-                    return res.status(400).send({ 
-                        message: `Not enough rooms available. Only ${targetHotel.availableRooms} rooms left.` 
-                    })
-                }
-                
-                await Hotel.findByIdAndUpdate(foundBooking.hotelId, {
-                    $inc: { availableRooms: -bookedRooms }
-                })
-            }
-
-            foundBooking.status = status
-            await foundBooking.save()
-
-            const updatedBooking = await Booking.findById(id)
-                .populate('hotelId', 'name city country')
-                .populate('userId', 'name surname email')
-
-            res.status(200).send({
-                message: "Booking status updated successfully",
-                payload: updatedBooking
-            })
-
-        } catch (err) {
-            res.status(500).send({ message: err.message })
-        }
-    }
-
     async deleteBooking(req, res) {
         try {
             const { id } = req.params

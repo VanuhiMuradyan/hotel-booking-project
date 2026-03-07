@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../../context/AuthContext"
 
 export default function Register() {
   const { signup } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: "", surname: "", email: "", password: "" })
+  const [form, setForm] = useState({ name: "", surname: "", email: "", password: "", dateOfBirth: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -85,6 +85,16 @@ export default function Register() {
               required
             />
           </div>
+
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-widest block mb-2">Birthday</label>
+              <input
+                type="date"
+                value={form.dateOfBirth}
+                onChange={e => setForm({ ...form, dateOfBirth: e.target.value })}
+                className="w-full border border-gray-200 rounded-lg px-4 py-4 text-base text-gray-900 outline-none focus:border-gray-400 transition"
+              />
+            </div>
 
           <button
             type="submit"

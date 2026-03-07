@@ -12,26 +12,39 @@ export default function AdminAddHotel({ hotels, setHotels }: Props) {
     name: "", description: "", address: "",
     city: "", country: "", price: "", availableRooms: ""
   })
-  const [uploadFiles, setUploadFiles] = useState<FileList | null>(null)
+  const [previewFiles, setPreviewFiles] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    const newFiles = Array.from(e.target.files)
+
+    setPreviewFiles(prev => [...prev, ...newFiles])
+    e.target.value = ""
+  }
+
+  const removeFile = (index: number) => {
+    setPreviewFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("previewFiles:", previewFiles)
+console.log("previewFiles length:", previewFiles.length)
     e.preventDefault()
     setLoading(true)
     try {
-      // 1 — Hotel ստեղծել
       const res = await api.post("/hotels/admin/add", {
         ...newHotel,
         price: Number(newHotel.price),
         availableRooms: Number(newHotel.availableRooms)
       })
+      console.log("created:", res.data)
       const created = res.data.payload
 
-      // 2 — Նկարներ upload անել
-      if (uploadFiles && uploadFiles.length > 0) {
+      if (previewFiles.length > 0) {
         const formData = new FormData()
-        Array.from(uploadFiles).forEach(file => formData.append("hotelImage", file))
+        previewFiles.forEach(file => formData.append("hotelImage", file))
         await api.post(`/hotels/admin/upload/images/${created._id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" }
         })
@@ -39,7 +52,7 @@ export default function AdminAddHotel({ hotels, setHotels }: Props) {
 
       setHotels([...hotels, created])
       setNewHotel({ name: "", description: "", address: "", city: "", country: "", price: "", availableRooms: "" })
-      setUploadFiles(null)
+      setPreviewFiles([])
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err: any) {
@@ -102,7 +115,6 @@ export default function AdminAddHotel({ hotels, setHotels }: Props) {
             />
           </div>
 
-          {/* Upload */}
           <div className="col-span-2">
             <label className="text-xs text-gray-500 uppercase tracking-widest block mb-2">Images</label>
             <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition">
@@ -110,30 +122,40 @@ export default function AdminAddHotel({ hotels, setHotels }: Props) {
                 type="file"
                 multiple
                 accept="image/*"
-                onChange={e => setUploadFiles(e.target.files)}
-                className="hidden"
-                id="hotel-images"
+  onChange={(e) => {
+    console.log("files selected:", e.target.files)
+    handleFileChange(e)
+  }}                className="hidden"
+                id="add-hotel-images"
               />
-              <label htmlFor="hotel-images" className="cursor-pointer">
+              <label htmlFor="add-hotel-images" className="cursor-pointer">
                 <div className="text-2xl mb-2">📁</div>
                 <p className="text-xs text-gray-400 uppercase tracking-widest">
-                  {uploadFiles && uploadFiles.length > 0
-                    ? `${uploadFiles.length} file(s) selected`
+                  {previewFiles.length > 0
+                    ? `${previewFiles.length} file(s) selected`
                     : "Click to select images"}
                 </p>
               </label>
             </div>
 
-            {/* Preview */}
-            {uploadFiles && uploadFiles.length > 0 && (
+            {/* Preview with remove */}
+            {previewFiles.length > 0 && (
               <div className="flex gap-3 mt-3 flex-wrap">
-                {Array.from(uploadFiles).map((file, i) => (
-                  <img
-                    key={i}
-                    src={URL.createObjectURL(file)}
-                    alt=""
-                    className="w-20 h-20 object-cover rounded-lg border border-gray-200"
-                  />
+                {previewFiles.map((file, i) => (
+                  <div key={i} className="relative">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt=""
+                      className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-200 text-gray-600 text-xs flex items-center justify-center hover:bg-red-400 hover:text-white transition cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </div>
                 ))}
               </div>
             )}

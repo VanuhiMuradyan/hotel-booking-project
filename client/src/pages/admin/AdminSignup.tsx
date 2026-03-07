@@ -32,7 +32,6 @@ export default function AdminSignup() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4" style={{ fontFamily: "'Georgia', serif" }}>
       <div className="bg-white border border-gray-200 rounded-2xl p-14 w-full max-w-2xl shadow-sm">
 
-        {/* Logo */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold tracking-widest uppercase text-gray-900">
             hotel<span className="text-gray-400">book</span>
@@ -40,7 +39,6 @@ export default function AdminSignup() {
           <p className="text-sm text-gray-400 tracking-widest uppercase mt-2">Admin Registration</p>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-5 py-4 mb-8">
             {error}
@@ -52,7 +50,7 @@ export default function AdminSignup() {
             { name: "name", label: "Name", type: "text" },
             { name: "surname", label: "Surname", type: "text" },
             { name: "email", label: "Email", type: "email" },
-            { name: "password", label: "Password", type: "password" },
+            { name: "password", label: "Password", type: "password"},
           ].map(field => (
             <div key={field.name} className={field.name === "avatar" ? "col-span-2" : ""}>
               <label className="text-xs text-gray-500 uppercase tracking-widest block mb-2">
@@ -67,6 +65,16 @@ export default function AdminSignup() {
               />
             </div>
           ))}
+
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-widest block mb-2">Birthday</label>
+              <input
+                type="date"
+                value={form.dateOfBirth}
+                onChange={e => setForm({ ...form, dateOfBirth: e.target.value })}
+                className="w-full border border-gray-200 rounded-lg px-4 py-4 text-base text-gray-900 outline-none focus:border-gray-400 transition"
+              />
+            </div>
         </div>
 
         <button

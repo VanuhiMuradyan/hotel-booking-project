@@ -2,14 +2,16 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { AuthProvider, useAuth } from "./context/AuthContext"
 import Navbar from "./components/ui/Navbar"
 import Home from "./pages/Home"
-import Hotels from "./pages/Hotels"
-import HotelDetails from "./pages/HotelDetails"
-import Profile from "./pages/Profile"
-import Login from "./pages/Login"
-import Register from "./pages/Register"
+import HotelDetails from "./pages/hotels/HotelDetails"
+
 import AdminPanel from "./pages/admin/AdminPanel"
-import Bookings from "./pages/Booking"
+import Bookings from "./pages/hotels/Booking"
 import AdminSignup from "./pages/admin/AdminSignup"
+import Hotels from "./pages/hotels/Hotels"
+import Login from "./pages/auth/Login"
+import Register from "./pages/auth/Register"
+import Profile from "./pages/user/Profile"
+import PublicProfile from "./pages/user/PublicProfile"
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { user, loading } = useAuth()
@@ -46,6 +48,7 @@ export default function App() {
                     <Route path="/admin" element={
                         <AdminRoute><AdminPanel /></AdminRoute>
                     } />
+                    <Route path="/profile/:id" element={<PublicProfile />} />
                     <Route path="/admin/update/:id" element={<HotelDetails />} />
                 </Routes>
             </AuthProvider>

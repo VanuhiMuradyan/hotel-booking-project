@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import api from "../services/api"
-import { type Hotel } from "../types"
+import api from "../../services/api"
+import type { Hotel } from "../../types"
 
 export default function Hotels() {
     const [hotels, setHotels] = useState<Hotel[]>([])
@@ -38,7 +38,7 @@ export default function Hotels() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filtered.map(hotel => (
-                    <Link key={hotel._id} to={`/hotels/${hotel.id}`}>
+                    <Link key={hotel._id} to={`/hotels/${hotel._id}`}>
                         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition">
                             {hotel.images?.[0] && (
                                 <img src={hotel.images[0]} alt={hotel.name}

@@ -49,33 +49,44 @@ class HotelController {
             return res.status(500).send({message: err.message})
         }
     }
-
     async updateHotel(req, res) {
         try {
             const hotelId = req.params.id
             const adminId = req.user._id
             const updateData = req.body
             const files = req.files
-                    
-            const hotel = await Hotel.findOne({_id: hotelId, owner: adminId})
-            
+
+            const hotel = await Hotel.findOne({ _id: hotelId, owner: adminId })
+
             if (!hotel) {
-                return res.status(401).send({message: "Hotel not found or access denied"})
+                return res.status(401).send({ message: "Hotel not found or access denied" })
+            }
+
+            let currentImages = hotel.images || []
+
+            if (updateData.removedImages) {
+                const removed = Array.isArray(updateData.removedImages)
+                    ? updateData.removedImages
+                    : [updateData.removedImages]
+                currentImages = currentImages.filter(img => !removed.includes(img))
+                delete updateData.removedImages
             }
 
             if (files && files.length > 0) {
-                const images = files.map(file => file.filename)                   
-                updateData.images = [...(hotel.images || []), ...images]
+                const newImages = files.map(file => `/uploads/${file.filename}`)
+                updateData.images = [...currentImages, ...newImages]
+            } else {
+                updateData.images = currentImages
             }
 
-            const updatedHotel = await Hotel.findByIdAndUpdate(hotelId, updateData, {new: true}).populate("owner", "name surname email")
+            const updatedHotel = await Hotel.findByIdAndUpdate(hotelId, updateData, { new: true })
+                .populate("owner", "name surname email")
 
-            res.status(200).send({message: "Hotel updated successfully", payload: updatedHotel})
+            res.status(200).send({ message: "Hotel updated successfully", payload: updatedHotel })
 
         } catch (err) {
-            return res.status(500).send({message: err.message})
+            return res.status(500).send({ message: err.message })
         }
-
     }
 
     async deleteHotel(req, res) {
@@ -124,6 +135,18 @@ class HotelController {
             return res.status(500).send({message: err.message})
         }
     }
+
+    async searchHotels(req, res) {
+        try {
+            const { city } = req.query
+            const hotels = await Hotel.find({
+                city: { $regex: city, $options: "i" }
+            })
+            res.status(200).send({ payload: hotels })
+        } catch (err) {
+            res.status(500).send({ message: err.message })
+        }
+    }   
 }
 
 export default new HotelController()

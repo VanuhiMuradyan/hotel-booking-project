@@ -10,7 +10,6 @@ const hotelSchema = new Schema({
     price: {type: Number, required: [true, "Prices required"]},
     images: {type: [String], required: []},
     availableRooms: {type: Number, required: [true, "Available rooms count is required"]},
-    facilities: {type: [String], default: []}
 })
 
 export default model("Hotel", hotelSchema)

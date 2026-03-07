@@ -6,6 +6,7 @@ export interface User {
     phone: string
     country: string
     city: string
+    dateOfBirth: string
     role: "user" | "admin"
 }
 
@@ -32,5 +33,17 @@ export interface Booking {
     numberOfGuests: number
     roomsCount: number
     totalPrice: number
-    status: "pending" | "confirmed" | "cancelled" | "completed"
+    status: "booked" | "cancelled" | "completed"
+}
+
+
+export interface PublicUser {
+  _id: string
+  name: string
+  surname: string
+  email: string
+  phone?: string
+  dateOfBirth?: string
+  avatar?: string
+  country?: string
 }
